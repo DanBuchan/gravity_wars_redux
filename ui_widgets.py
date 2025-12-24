@@ -14,10 +14,10 @@ def create_text_area(screen, x, y, width, height, dialogue_text, colour, borderc
                 hoverColour=colour, pressedColour=colour,
                 textHAlign="left", textVAlign="top", hoverBorderColour=bordercolour,
                 pressedBorderColour=bordercolour, margin=5,
-                font=pygame.font.SysFont('bold', 16))
+                font=pygame.font.SysFont('bold', 8))
 
 def create_text_input(screen, x, y, width, height, field_text, min, max, min_text, max_text, colour, bordercolour):
-    field = TextBox(screen, x, y, width, height, fontSize=12,
+    field = TextBox(screen, x, y, width, height, fontSize=6,
                 borderColour=bordercolour, textColour=(0, 0, 0),
                 colour=colour, radius=2, borderThickness=2,
                 placeholderText=field_text)
@@ -41,7 +41,7 @@ def create_text_input(screen, x, y, width, height, field_text, min, max, min_tex
 
 def create_submit_button(screen, location, player, states, angle_input, velocity_input, this_state, next_state, text, colour, bordercolour): 
     submit_button = Button(screen, location, 10, 60, 20, text=text,
-                fontSize=14, radius=2, onClickParams=[player, states, angle_input, velocity_input], 
+                fontSize=7, radius=2, onClickParams=[player, states, angle_input, velocity_input], 
                 borderThickness=2,
                 borderColour=bordercolour,
                 inactiveColour=colour,

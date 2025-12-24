@@ -75,10 +75,18 @@ Whoop by cabled_mess -- https://freesound.org/s/361122/ -- License: Creative Com
 ## TODO
 
 1. Package for OSX and win11
+   https://www.pygame.org/wiki/Pygame2exe
+   https://www.youtube.com/watch?v=lTxaran0Cig
+   https://stackoverflow.com/questions/54210392/how-can-i-convert-pygame-to-exe
+   https://www.pygame.org/wiki/distributing
+   use pyinstaller to bundle for OSX
 2. Nicer pixel art menus
 3. Procedural generation of pixel art planet textures
 4. net play
 5. Music?
 7. Amiga AGA port
 8. Spectrum Next port
-9. could more ship collisions in to Missile.fire_missile
+9. could move ship collisions in to Missile.fire_missile, and missile_travelling noise in to sprite class.
+   in fact loading the noises could live in the missile class too.
+10. https://stackoverflow.com/questions/64341589/scale-everything-on-pygame-display-surface
+    https://stackoverflow.com/questions/54040397/pygame-rescale-pixel-size?rq=3

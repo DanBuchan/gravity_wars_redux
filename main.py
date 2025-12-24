@@ -4,6 +4,7 @@ from pygame_menu import themes
 import random
 import time
 import re
+import math
 
 from config import settings, set_settings
 from menu import *
@@ -17,7 +18,6 @@ from pygame.locals import (
     K_TAB,
     K_RETURN,
 )
-
 
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -52,9 +52,9 @@ MISSILE_PUTTERING = pygame.USEREVENT + 5
 MISSILE_FADE = pygame.USEREVENT + 6
 NEXT_STATE = pygame.USEREVENT + 7
 
-screen = pygame.display.set_mode([settings['ScreenWidth'],
-                                  settings['ScreenHeight']])
-area_to_save = pygame.Rect(0, 0, settings['ScreenWidth'], settings['ScreenHeight'])
+screen = pygame.display.set_mode([settings['DisplayWidth'],
+                                  settings['DisplayHeight']])
+area_to_save = pygame.Rect(0, 0, settings['DisplayWidth'], settings['DisplayHeight'])
 temp_screen = pygame.Surface(area_to_save.size)
 master_layout = pygame.Surface(area_to_save.size)
 
@@ -82,7 +82,7 @@ frame_count = 0
 
 
 def show_a_message(colour, message, adjustment=0):
-    font = pygame.font.SysFont('bold', 32)
+    font = pygame.font.SysFont('bold', 16)
     text = font.render(message, True, colour, pygame.SRCALPHA)
     text.set_alpha()
     textRect = text.get_rect()
@@ -607,16 +607,22 @@ def run_the_game(play1, play2, planetNum,
         clock.tick(60)
     return()
 
-mainmenu = pygame_menu.Menu('Welcome', 640, 512, 
-                                     theme=themes.THEME_SOLARIZED)
+
+mysolarized = pygame_menu.themes.THEME_SOLARIZED.copy()
+mysolarized.title_font_size=math.ceil(settings['DisplayHeight']/24)
+mainmenu = pygame_menu.Menu('Welcome', settings['DisplayWidth'], settings['DisplayHeight'], 
+                                     theme=mysolarized)
+myblue = pygame_menu.themes.THEME_BLUE.copy()
+myblue.title_font_size=math.ceil(settings['DisplayHeight']/24)
+settingmenu = pygame_menu.Menu('Settings', settings['DisplayWidth'], settings['DisplayHeight'], 
+                               theme=myblue)
+about = pygame_menu.Menu('About', settings['DisplayWidth'], settings['DisplayHeight'], 
+                                     theme=myblue)
     
-settingmenu = pygame_menu.Menu('Settings', 640, 512, 
-                               theme=themes.THEME_BLUE)
-build_menu(mainmenu, settingmenu, settings, run_the_game)
+build_menu(mainmenu, settingmenu, about, settings, settings['DisplayHeight'], run_the_game)
 while running:
     # Look at every event in the queue
     mainmenu.mainloop(screen)
-
 pygame.mixer.music.stop()
 pygame.mixer.quit()
 pygame.quit()

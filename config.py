@@ -27,6 +27,9 @@ settings = {
     'YSolarSystemDomain': (int(config['DEFAULT']['ySolarSystemDomainMin']),
                            int(config['DEFAULT']['ySolarSystemDomainMax'])),
     'MissileMaxFlightTime': int(config['DEFAULT']['MissileMaxFlightTime']),
+    'ScreenScalingFactor': int(config['DEFAULT']['ScreenScalingFactor']),
+    'DisplayWidth': int(config['DEFAULT']['ScreenWidth']) * int(config['DEFAULT']['ScreenScalingFactor']),
+    'DisplayHeight': int(config['DEFAULT']['ScreenHeight']) * int(config['DEFAULT']['ScreenScalingFactor']),
     'SwapSides': eval(config['DEFAULT']['SwapSides']),
     'Seed': None
 }
