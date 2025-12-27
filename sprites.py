@@ -9,13 +9,13 @@ import time
 class Player(pygame.sprite.Sprite):
     def __init__(self, settings, canon_colour, left_side):
         super(Player, self).__init__()
-        self.sprite_dim_x = 25
-        self.sprite_dim_y = 11
+        self.sprite_dim_x = 13
+        self.sprite_dim_y = 7
         self.surf = pygame.Surface((self.sprite_dim_x,
                                     self.sprite_dim_y))
         self.surf.fill((200, 200, 200))
         self.rect = self.surf.get_rect()
-        self.canon = pygame.Surface((5,5))
+        self.canon = pygame.Surface((3,3))
         self.canon.fill(canon_colour)
         if left_side:
             self.x = random.randint(settings['XPlayDomain'][0],
@@ -24,8 +24,8 @@ class Player(pygame.sprite.Sprite):
                                     settings['YPlayDomain'][1]-self.sprite_dim_y)
             self.rect.topleft = (self.x, self.y)
             #30 offset prevents player sprites overlapping with input UI
-            self.canon_x = self.x+17
-            self.canon_y = self.y+3
+            self.canon_x = self.x+8 
+            self.canon_y = self.y+2
             self.angle_text = '000.0000'
             self.velocity_text = '5.0000'
             self.angle = 0.0
@@ -37,8 +37,8 @@ class Player(pygame.sprite.Sprite):
             self.y = random.randint(settings['YPlayDomain'][0]+30,
                                     settings['YPlayDomain'][1]-self.sprite_dim_y)
             self.rect.topleft = (self.x, self.y)
-            self.canon_x = self.x+3
-            self.canon_y = self.y+3
+            self.canon_x = self.x+2
+            self.canon_y = self.y+2
             self.angle_text = '180.0000'
             self.velocity_text = '5.0000'
             self.angle = 180.0
@@ -71,31 +71,31 @@ class Planet(pygame.sprite.Sprite):
         self.planet_colour = (200, 200, 200)
         
         # 15 to 85
-        self.radius = random.randint(0, 5) + 20
+        self.radius = random.randint(0, 3) + 10
         if self.planet_type == 2:
             self.density = math.floor((random.random() * 3) + 2) / 4
             self.planet_colour = random.choice(((225, 115, 60),(130, 225, 125),(125, 180, 220)))
-            self.radius = random.randint(25, 45)
+            self.radius = random.randint(13, 23)
         if self.planet_type == 3:
             self.density = math.floor((random.random() * 3) + 2) / 6
             self.planet_colour = (225, 180, 70)
-            self.radius = random.randint(61, 85)
+            self.radius = random.randint(31, 43)
         if self.planet_type == 4:
             self.density = math.floor((random.random() * 3) + 2) / 6
             self.planet_colour = (225, 180, 70)
-            self.radius = random.randint(61, 85)
+            self.radius = random.randint(31, 43)
         if self.planet_type == 5:
             self.density = math.floor((random.random() * 3) + 2) / 5
             self.planet_colour = random.choice(((155, 190, 155),(155,155,190)))
-            self.radius = random.randint(46, 60)
+            self.radius = random.randint(23, 30)
         if self.planet_type == 6:
             self.density = math.floor((random.random() * 3) + 2) / 5
             self.planet_colour = random.choice(((155, 190, 155),(155,155,190)))
-            self.radius = random.randint(46, 60)
+            self.radius = random.randint(23, 30)
         if self.planet_type == 7:
             self.density = math.floor((random.random() * 3) + 2) / 2
             self.planet_colour = (0,0,0)
-            self.radius = random.randint(21, 85)
+            self.radius = random.randint(11, 43)
         
         self.mass = settings['G'] * 2 * math.pi * self.radius**2 * self.density
         self.x = random.randint(settings['XPlayDomain'][0]+self.radius,
@@ -103,7 +103,7 @@ class Planet(pygame.sprite.Sprite):
         self.y = random.randint(settings['YPlayDomain'][0]+self.radius,
                                 settings['YPlayDomain'][1]-self.radius)
         self.image = pygame.Surface((self.radius*2+1, self.radius*2+1), pygame.SRCALPHA)
-        pygame.gfxdraw.aacircle(self.image,
+        pygame.gfxdraw.circle(self.image,
                                 self.radius,
                                 self.radius,
                                 self.radius, self.planet_colour)

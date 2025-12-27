@@ -54,9 +54,10 @@ NEXT_STATE = pygame.USEREVENT + 7
 
 screen = pygame.display.set_mode([settings['DisplayWidth'],
                                   settings['DisplayHeight']])
-area_to_save = pygame.Rect(0, 0, settings['DisplayWidth'], settings['DisplayHeight'])
+area_to_save = pygame.Rect(0, 0, settings['ScreenWidth'], settings['ScreenHeight'])
 temp_screen = pygame.Surface(area_to_save.size)
 master_layout = pygame.Surface(area_to_save.size)
+pre_blit_surface = pygame.Surface(area_to_save.size)
 
 # Game states
 # 1: generating the sprites
@@ -82,12 +83,12 @@ frame_count = 0
 
 
 def show_a_message(colour, message, adjustment=0):
-    font = pygame.font.SysFont('bold', 16)
+    font = pygame.font.SysFont('bold', settings['ScreenHeight']/24)
     text = font.render(message, True, colour, pygame.SRCALPHA)
     text.set_alpha()
     textRect = text.get_rect()
     textRect.center = (settings['ScreenWidth']/2, settings['ScreenHeight']/2+adjustment)
-    screen.blit(text, textRect)
+    pre_blit_surface.blit(text, textRect)
     pygame.display.flip()
 
 def make_a_missile(player, colour):
@@ -95,7 +96,7 @@ def make_a_missile(player, colour):
                       BLACKHOLE_STRIKE, PLANET_STRIKE, MISSILE_FADE)
     missile.set_starting_location(player)
     missile.missile_start_time = time.time()
-    screen.blit(missile.surf, (missile.x, missile.y))
+    pre_blit_surface.blit(missile.surf, (missile.x, missile.y))
     pygame.event.post(pygame.event.Event(MISSILE_LAUNCH))
     return missile
             
@@ -220,13 +221,13 @@ def run_the_game(play1, play2, planetNum,
                     if states['p1_message']:
                         states['p1_message'] = False
                         states['p2_widget_gen'] = True
-                        screen.blit(temp_screen, (0, 0), area_to_save)
+                        pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
                     if states['p2_message']:
-                        screen.blit(temp_screen, (0, 0), area_to_save)
+                        pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
                         states['p2_message'] = False
                         states['p1_widget_gen'] = True
                     if states['both_message']:
-                        screen.blit(temp_screen, (0, 0), area_to_save)
+                        pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
                         states['both_message'] = False
                         states['p1_widget_gen'] = True
                     
@@ -271,13 +272,13 @@ def run_the_game(play1, play2, planetNum,
                 if states['p1_message']:
                     states['p1_message'] = False
                     states['p2_widget_gen'] = True
-                    screen.blit(temp_screen, (0, 0), area_to_save)
+                    pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
                 if states['p2_message']:
-                    screen.blit(temp_screen, (0, 0), area_to_save)
+                    pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
                     states['p2_message'] = False
                     states['p1_widget_gen'] = True
                 if states['both_message']:
-                    screen.blit(temp_screen, (0, 0), area_to_save)
+                    pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
                     states['both_message'] = False
                     states['p1_widget_gen'] = True
                 
@@ -312,7 +313,7 @@ def run_the_game(play1, play2, planetNum,
             all_sprites = pygame.sprite.Group()
             all_sprites.add(player1)
             all_sprites.add(player2)
-            screen.fill((0, 0, 0))
+            pre_blit_surface.fill((0,0,0))
             # GENERATE STAR FIELD/BACKGROUND
             
             for i in range(0, 700):
@@ -320,9 +321,14 @@ def run_the_game(play1, play2, planetNum,
                 star_y = random.randint(0, settings['ScreenWidth'])
                 star_surf = pygame.Surface((1, 1))
                 star_surf.fill((random.randint(200,255),200,random.randint(200,255)))
-                screen.blit(star_surf, (star_x, star_y))
+                pre_blit_surface.blit(star_surf, (star_x, star_y))
+            
             planet_count = random.randint(settings['MinPlanets'],
                                           settings['MaxPlanets'])
+            
+            scaled_win = pygame.transform.scale(pre_blit_surface, screen.get_size())
+            # or scaled_win = pygame.transform.scale(win, display_win.get_size())
+            screen.blit(scaled_win, (0, 0))
             pygame.display.flip()
             time.sleep(1)
             accepted_count = 0
@@ -349,22 +355,28 @@ def run_the_game(play1, play2, planetNum,
                     else:
                         collision_planets.add(tmp_planet)
                     
-                    screen.blit(tmp_planet.image, (tmp_planet.x, tmp_planet.y))
+                    pre_blit_surface.blit(tmp_planet.image, (tmp_planet.x, tmp_planet.y))
+                    
+                    scaled_win = pygame.transform.scale(pre_blit_surface, screen.get_size())
+                    screen.blit(scaled_win, (0, 0))
                     pygame.display.flip()
                     time.sleep(0.3)
                     accepted_count += 1    
                 if accepted_count == planet_count:
                     break
             
-            screen.blit(player1.surf, (player1.x, player1.y))
-            screen.blit(player1.canon, (player1.canon_x, player1.canon_y))
-            screen.blit(player2.surf, (player2.x, player2.y))
-            screen.blit(player2.canon, (player2.canon_x, player2.canon_y))
+            pre_blit_surface.blit(player1.surf, (player1.x, player1.y))
+            pre_blit_surface.blit(player1.canon, (player1.canon_x, player1.canon_y))
+            pre_blit_surface.blit(player2.surf, (player2.x, player2.y))
+            pre_blit_surface.blit(player2.canon, (player2.canon_x, player2.canon_y))
             
+            scaled_win = pygame.transform.scale(pre_blit_surface, screen.get_size())
+            # or scaled_win = pygame.transform.scale(win, display_win.get_size())
+            screen.blit(scaled_win, (0, 0))
             pygame.display.flip()
             #copy the current state of screen to temp_screen
-            temp_screen.blit(screen, (0, 0), area_to_save)
-            master_layout.blit(screen, (0, 0), area_to_save)
+            temp_screen.blit(pre_blit_surface, (0, 0), area_to_save)
+            master_layout.blit(pre_blit_surface, (0, 0), area_to_save)
             time.sleep(0.5)
             states['sprite_gen'] = False
             states['p1_widget_gen'] = True
@@ -375,13 +387,13 @@ def run_the_game(play1, play2, planetNum,
             collisions1 = None
             collisions2 = None
             if settings['RemoveTrails']:
-                screen.blit(master_layout, (0, 0), area_to_save)
+                pre_blit_surface.blit(master_layout, (0, 0), area_to_save)
                       
-            player1_id = create_text_area(screen, 10, 10, 65, 20, 'Player 1',(180, 180, 240), (160, 160, 220))
-            angle_dialogue = create_text_area(screen, 80, 10, 85, 20, 'Angle (0-360)', (180, 180, 240), (160, 160, 220))
-            player1_angle_input = create_text_input(screen, 165, 10, 65, 20, player1.angle_text, 0, 360, '000.0000', '359.9999', (180, 180, 240), (160, 160, 220))
-            velocity_dialogue = create_text_area(screen, 235, 10, 90, 20, 'Velocity (0-10)', (180, 180, 240), (160, 160, 220))
-            player1_velocity_input = create_text_input(screen, 325, 10, 60, 20, player1.velocity_text, 0, 10, '0.0000', '10.0000', (180, 180, 240), (160, 160, 220))
+            player1_id = create_text_area(pre_blit_surface, 10, 10, 65, 20, 'Player 1',(180, 180, 240), (160, 160, 220))
+            angle_dialogue = create_text_area(pre_blit_surface, 80, 10, 85, 20, 'Angle (0-360)', (180, 180, 240), (160, 160, 220))
+            player1_angle_input = create_text_input(pre_blit_surface, 165, 10, 65, 20, player1.angle_text, 0, 360, '000.0000', '359.9999', (180, 180, 240), (160, 160, 220))
+            velocity_dialogue = create_text_area(pre_blit_surface, 235, 10, 90, 20, 'Velocity (0-10)', (180, 180, 240), (160, 160, 220))
+            player1_velocity_input = create_text_input(pre_blit_surface, 325, 10, 60, 20, player1.velocity_text, 0, 10, '0.0000', '10.0000', (180, 180, 240), (160, 160, 220))
             
             submit_text = "Submit"
             next_state = 'p2_widget_gen'
@@ -392,10 +404,10 @@ def run_the_game(play1, play2, planetNum,
                 next_state = 'clear_ui'
                 fire_colour = (255, 120, 120)
                 fire_border_colour = (200, 120, 120)
-            submit_button = create_submit_button(screen, 390, player1, states, player1_angle_input, player1_velocity_input, 'p1_input', next_state, submit_text, fire_colour, fire_border_colour)
+            submit_button = create_submit_button(pre_blit_surface, 390, player1, states, player1_angle_input, player1_velocity_input, 'p1_input', next_state, submit_text, fire_colour, fire_border_colour)
             # create the widgets afresh with the current value
             #screenwidth-120-10
-            seed_dialogue = create_text_area(screen, settings["ScreenWidth"]-120-10, 10, 120, 20, f"Seed: {settings['Seed']}", (220, 220, 180), (220, 220, 160))
+            seed_dialogue = create_text_area(pre_blit_surface, settings["ScreenWidth"]-120-10, 10, 120, 20, f"Seed: {settings['Seed']}", (220, 220, 180), (220, 220, 160))
             
             states['p1_widget_gen'] = False
             states['p1_input'] = True
@@ -405,18 +417,18 @@ def run_the_game(play1, play2, planetNum,
             pygame.display.update()
 
         if states['clear_ui']:
-            screen.blit(temp_screen, (0, 0), area_to_save)
+            pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
             missile1 = make_a_missile(player1,(190, 190, 255))
             states["p1_missiles"] = True
             states['clear_ui'] = False
 
         if states['p1_missiles']:
-            missile_done = missile1.fire_missile(screen, planets, collision_planets, settings, player1)
+            missile_done = missile1.fire_missile(pre_blit_surface, planets, collision_planets, settings, player1)
             if missile_done:
                 missile_launch.stop()
                 states['p1_missiles'] = False
                 states['p1_message'] = True
-                temp_screen.blit(screen, (0, 0), area_to_save)
+                temp_screen.blit(pre_blit_surface, (0, 0), area_to_save)
                 show_a_message((200,255,200), missile1.message)
                 missile1_travelling = False
                 missile2_travelling = False
@@ -451,15 +463,15 @@ def run_the_game(play1, play2, planetNum,
             angle_dialogue.hide()
             velocity_dialogue.hide()
             
-            player2_id = create_text_area(screen, 10, 10, 65, 20, 'Player 2', (240, 180, 180), (220, 160, 160))
-            angle_dialogue = create_text_area(screen, 80, 10, 85, 20, 'Angle (0-360)', (240, 180, 180), (220, 160, 160))
-            player2_angle_input = create_text_input(screen, 165, 10, 65, 20, player2.angle_text, 0, 360, '000.0000', '359.9999', (240, 180, 180), (220, 160, 160))
-            velocity_dialogue = create_text_area(screen, 235, 10, 90, 20, 'Velocity (0-10)', (240, 180, 180), (220, 160, 160))
-            player2_velocity_input = create_text_input(screen, 325, 10, 60, 20, player2.velocity_text, 0, 10, '0.0000', '10.0000', (240, 180, 180), (220, 160, 160))
+            player2_id = create_text_area(pre_blit_surface, 10, 10, 65, 20, 'Player 2', (240, 180, 180), (220, 160, 160))
+            angle_dialogue = create_text_area(pre_blit_surface, 80, 10, 85, 20, 'Angle (0-360)', (240, 180, 180), (220, 160, 160))
+            player2_angle_input = create_text_input(pre_blit_surface, 165, 10, 65, 20, player2.angle_text, 0, 360, '000.0000', '359.9999', (240, 180, 180), (220, 160, 160))
+            velocity_dialogue = create_text_area(pre_blit_surface, 235, 10, 90, 20, 'Velocity (0-10)', (240, 180, 180), (220, 160, 160))
+            player2_velocity_input = create_text_input(pre_blit_surface, 325, 10, 60, 20, player2.velocity_text, 0, 10, '0.0000', '10.0000', (240, 180, 180), (220, 160, 160))
             next_state = 'clear_ui_3'
             if settings["Alternate"]:
                 next_state = 'clear_ui_2'
-            submit_2_button = create_submit_button(screen, 390, player2, states, player2_angle_input, player2_velocity_input, 'p2_input', next_state, "Fire!", (255, 120, 120), (200, 120, 120))
+            submit_2_button = create_submit_button(pre_blit_surface, 390, player2, states, player2_angle_input, player2_velocity_input, 'p2_input', next_state, "Fire!", (255, 120, 120), (200, 120, 120))
             
             # create the widgets afresh with the current value
             states['p2_widget_gen'] = False
@@ -476,18 +488,18 @@ def run_the_game(play1, play2, planetNum,
             submit_button.hide()
             angle_dialogue.hide()
             velocity_dialogue.hide()
-            screen.blit(temp_screen, (0, 0), area_to_save)
+            pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
             missile2 = make_a_missile(player2,(255, 200, 200))
             states["p2_missiles"] = True
             states['clear_ui_2'] = False
 
         if states['p2_missiles']:
-            missile_done = missile2.fire_missile(screen, planets, collision_planets, settings, player2)
+            missile_done = missile2.fire_missile(pre_blit_surface, planets, collision_planets, settings, player2)
             if missile_done:
                 missile_launch.stop()
                 states['p2_missiles'] = False
                 states['p2_message'] = True
-                temp_screen.blit(screen, (0, 0), area_to_save)
+                temp_screen.blit(pre_blit_surface, (0, 0), area_to_save)
                 show_a_message((200,255,200), missile2.message)
                 missile1_travelling = False
                 missile2_travelling = False
@@ -520,7 +532,7 @@ def run_the_game(play1, play2, planetNum,
             submit_button.hide()
             angle_dialogue.hide()
             velocity_dialogue.hide()
-            screen.blit(temp_screen, (0, 0), area_to_save)
+            pre_blit_surface.blit(temp_screen, (0, 0), area_to_save)
             missile1 = make_a_missile(player1,(190, 190, 255))
             missile2 = make_a_missile(player2,(255, 200, 200))
             missile1_travelling = True
@@ -530,11 +542,11 @@ def run_the_game(play1, play2, planetNum,
 
         if states['both_missiles']:
             if missile1_travelling:
-                missile1_done = missile1.fire_missile(screen, planets, collision_planets, settings, player1)
+                missile1_done = missile1.fire_missile(pre_blit_surface, planets, collision_planets, settings, player1)
                 collisions1 = pygame.sprite.spritecollide(missile1, players, 
                                                           False)
             if missile2_travelling:
-                missile2_done = missile2.fire_missile(screen, planets, collision_planets, settings, player2)
+                missile2_done = missile2.fire_missile(pre_blit_surface, planets, collision_planets, settings, player2)
                 collisions2 = pygame.sprite.spritecollide(missile2, players, 
                                                           False)
             if missile1_done or collisions1:
@@ -545,7 +557,7 @@ def run_the_game(play1, play2, planetNum,
             if missile1_done and missile2_done:
                 states['both_missiles'] = False
                 states['both_message'] = True
-                temp_screen.blit(screen, (0, 0), area_to_save)
+                temp_screen.blit(pre_blit_surface, (0, 0), area_to_save)
                 show_a_message((200,255,200), missile1.message, -30)
                 show_a_message((200,255,200), missile2.message)
             elif missile1_done and collisions2:
@@ -579,7 +591,7 @@ def run_the_game(play1, play2, planetNum,
             pass
             
         if states['end_game']:
-            temp_screen.blit(screen, (0, 0), area_to_save)
+            temp_screen.blit(pre_blit_surface, (0, 0), area_to_save)
             show_a_message((200,255,200), win_message)
             show_a_message((200,255,200), f"Seed: {settings['Seed']}", 25)
             states['end_game'] = False
@@ -603,6 +615,9 @@ def run_the_game(play1, play2, planetNum,
         if states['end_wait']:
             pass
 
+        scaled_win = pygame.transform.scale(pre_blit_surface, screen.get_size())
+        # or scaled_win = pygame.transform.scale(win, display_win.get_size())
+        screen.blit(scaled_win, (0, 0))    
         pygame.display.flip()
         clock.tick(60)
     return()
